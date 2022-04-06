@@ -14,6 +14,7 @@ which kubectl
 
 #+begin_src shell
 cp env_example.sh env.sh
+# Add secrets to env.sh
 source env.sh
 sh create_gke_cluster.sh
 sh create_gloo_entities.sh
