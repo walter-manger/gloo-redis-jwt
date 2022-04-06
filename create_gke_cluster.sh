@@ -7,6 +7,12 @@ gcloud container clusters create "$CLUSTER_NAME" \
     --no-enable-master-authorized-networks \
     --enable-ip-alias \
     --enable-private-nodes \
+    --enable-autoprovisioning \
+    --min-cpu 1 \
+    --max-cpu 3 \
+    --min-memory 1 \
+    --max-memory 3 \
+    --autoprovisioning-scopes=https://www.googleapis.com/auth/logging.write,https://www.googleapis.com/auth/monitoring,https://www.googleapis.com/auth/devstorage.read_only \
     --master-ipv4-cidr "$MASTER_NETWORK" \
     --no-enable-basic-auth \
     --no-issue-client-certificate

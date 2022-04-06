@@ -5,6 +5,7 @@
 First, you will need Google Cloud Platform access.
 
 #+begin_src shell
+which docker
 which gcloud
 which glooctl
 which kubectl
@@ -23,7 +24,7 @@ sh create_gloo_entities.sh
 Get the gateway IP
 
 #+begin_src shell
-glooctl proxy url
+glooctl proxy address
 #+end_src
 
 Place this IP in your =/etc/hosts=
@@ -31,4 +32,23 @@ Place this IP in your =/etc/hosts=
 #+begin_src
 34.74.19.106 api.glootest.com
 34.74.19.106 client-fetch.glootest.com
+#+end_src
+
+** Building the Client
+
+#+begin_src shell
+cd ./client
+docker build . -t nginx-fetch-gloo && docker tag nginx-fetch-gloo wmangerva/nginx-fetch-gloo && docker push wmangerva/nginx-fetch-gloo
+#+end_src
+
+Trigger a fetch of the new container
+
+#+begin_src shell
+k delete pod client-fetch-
+#+end_src
+
+** Tearing Down The Cluster
+
+#+begin_src shell
+gcloud container clusters delete $CLUSTER_NAME
 #+end_src

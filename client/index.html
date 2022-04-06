@@ -11,10 +11,38 @@
     <!-- Place favicon.ico in the root directory -->
 
     <script>
+
+     function show(obj) {
+        console.log(obj);
+        document.getElementById('response-container').textContent = JSON.stringify(obj.headers, null, '  ');
+     }
+
      function runFetch() {
         fetch('https://api.glootest.com/get', { credentials: 'include' })
           .then(response => response.json())
-          .then(data => console.log(data));
+          .then(data => show(data));
+     }
+
+     function runFetchBearer() {
+       fetch('https://api.glootest.com/get', {
+         credentials: 'omit',
+         headers: {
+           'Authorization': 'Bearer XXX'
+         }
+       })
+          .then(response => response.json())
+          .then(data => show(data));
+     }
+
+      function runFetchApiKey() {
+       fetch('https://api.glootest.com/get', {
+         credentials: 'omit',
+         headers: {
+           'api-master-key': 'XXX'
+         }
+       })
+          .then(response => response.json())
+          .then(data => show(data));
      }
     </script>
   </head>
@@ -30,12 +58,17 @@
     <h1>This is the Client</h1>
 
     <button onclick="runFetch()">Send Cookie Request</button>
-
+    <p></p>
+    <button onclick="runFetchBearer()">Send Bearer Request</button>
+    <p></p>
+    <button onclick="runFetchApiKey()">Send API Key Request</button>
     <p>
       <a href="/callback/">Callback</a>
     </p>
     <p>
       <a href="/logout/">Logout</a>
     </p>
+
+    <pre id="response-container"></pre>
   </body>
 </html>
