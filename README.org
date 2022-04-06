@@ -1,0 +1,33 @@
+#+TITLE: Gloo Redis JWT Store
+
+** Required Tools
+
+First, you will need Google Cloud Platform access.
+
+#+begin_src shell
+which gcloud
+which glooctl
+which kubectl
+#+end_src
+
+** Getting Started
+
+#+begin_src shell
+cp env_example.sh env.sh
+source env.sh
+sh create_gke_cluster.sh
+sh create_gloo_entities.sh
+#+end_src
+
+Get the gateway IP
+
+#+begin_src shell
+glooctl proxy url
+#+end_src
+
+Place this IP in your =/etc/hosts=
+
+#+begin_src
+34.74.19.106 api.glootest.com
+34.74.19.106 client-fetch.glootest.com
+#+end_src

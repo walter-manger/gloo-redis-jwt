@@ -1,0 +1,11 @@
+apiVersion: gloo.solo.io/v1
+kind: Upstream
+metadata:
+  name: auth0-jwks-upstream
+  namespace: gloo-system
+spec:
+  static:
+    hosts:
+      # This upstream identifies the host where Auth0 publishes the JWKS endpoint for my dev account
+      - addr: dev-98l3ihxy.us.auth0.com
+        port: 443

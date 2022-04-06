@@ -1,0 +1,29 @@
+apiVersion: enterprise.gloo.solo.io/v1
+kind: AuthConfig
+metadata:
+  name: ui-auth0-ac
+  namespace: gloo-system
+spec:
+  configs:
+    - oauth2:
+        oidcAuthorizationCode:
+          appUrl: https://ui.glootest.com
+          callbackPath: /callback
+          logoutPath: /logout
+          clientId: nQXzyCkaTJR2KIhGpHa9yhsZkxKHdZ87
+          clientSecretRef:
+            name: auth0-client-secret
+            namespace: gloo-system
+          issuerUrl: https://dev-98l3ihxy.us.auth0.com
+          scopes:
+            - email
+          session:
+            failOnFetchFailure: true
+            cookieOptions:
+              notSecure: false
+              maxAge: 2588400 # 719 hours
+              domain: 'glootest.com'
+            redis:
+              cookieName: auth0-session
+              options:
+                host: redis.gloo-system.svc.cluster.local:6379

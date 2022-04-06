@@ -1,0 +1,56 @@
+apiVersion: enterprise.gloo.solo.io/v1
+kind: AuthConfig
+metadata:
+  name: client-fetch-auth0-ac
+  namespace: gloo-system
+spec:
+  configs:
+    - oauth2:
+        oidcAuthorizationCode:
+          appUrl: https://client-fetch.glootest.com
+          callbackPath: /callback
+          logoutPath: /logout
+          clientId: nQXzyCkaTJR2KIhGpHa9yhsZkxKHdZ87
+          clientSecretRef:
+            name: auth0-client-secret
+            namespace: gloo-system
+          issuerUrl: https://dev-98l3ihxy.us.auth0.com
+          scopes:
+            - email
+          session:
+            failOnFetchFailure: true
+            cookieOptions:
+              notSecure: false
+              maxAge: 2588400 # 719 hours
+              domain: 'glootest.com'
+            redis:
+              cookieName: auth0-session
+              options:
+                host: redis.gloo-system.svc.cluster.local:6379
+---
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: client-fetch-auth0-vs
+  namespace: gloo-system
+spec:
+  sslConfig:
+    secretRef:
+      name: upstream-tls
+      namespace: gloo-system
+  virtualHost:
+    domains:
+    - 'client-fetch.glootest.com'
+    routes:
+    - matchers:
+      - prefix: /
+      routeAction:
+        single:
+          upstream:
+            name: default-client-fetch-8080
+            namespace: gloo-system
+      options:
+        extauth:
+          configRef:
+            name: client-fetch-auth0-ac
+            namespace: gloo-system

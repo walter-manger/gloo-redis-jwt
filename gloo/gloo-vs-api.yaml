@@ -1,0 +1,55 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: httpbin-auth0-vs
+  namespace: gloo-system
+spec:
+  sslConfig:
+    secretRef:
+      name: upstream-tls
+      namespace: gloo-system
+  virtualHost:
+    domains:
+    - 'api.glootest.com'
+    routes:
+    - matchers:
+      - prefix: /
+      routeAction:
+        single:
+          upstream:
+            name: default-httpbin-api-8000
+            namespace: gloo-system
+    options:
+      extauth:
+        configRef:
+          name: api-auth0-ac
+          namespace: gloo-system
+      headerManipulation:
+        requestHeadersToRemove:
+        - "cookie"
+        - "Jwt"
+      stagedTransformations:
+          regular:
+            requestTransforms:
+              - requestTransformation:
+                  transformationTemplate:
+                    headers:
+                      authorization:
+                        text: "Bearer {{ header(\"Jwt\") }}"
+                clearRouteCache: true
+      # jwt:
+      #   providers:
+      #     auth0:
+      #       issuer: https://dev-98l3ihxy.us.auth0.com/
+      #       tokenSource:
+      #         headers:
+      #         - header: Jwt
+      #       # claimsToHeaders:
+      #       # - claim: email
+      #       #   header: x-va-claim-email
+      #       jwks:
+      #         remote:
+      #           url: https://dev-98l3ihxy.us.auth0.com/.well-known/jwks.json
+      #           upstreamRef:
+      #             name: auth0-jwks-upstream
+      #             namespace: gloo-system

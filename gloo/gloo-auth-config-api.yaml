@@ -1,0 +1,26 @@
+apiVersion: enterprise.gloo.solo.io/v1
+kind: AuthConfig
+metadata:
+  name: api-auth0-ac
+  namespace: gloo-system
+spec:
+  configs:
+    - oauth2:
+        oidcAuthorizationCode:
+          appUrl: https://api.glootest.com
+          callbackPath: /callback
+          logoutPath: /logout
+          clientId: nQXzyCkaTJR2KIhGpHa9yhsZkxKHdZ87
+          clientSecretRef:
+            name: auth0-client-secret
+            namespace: gloo-system
+          issuerUrl: https://dev-98l3ihxy.us.auth0.com
+          scopes:
+            - email
+          session:
+            redis:
+              cookieName: auth0-session
+              options:
+                host: redis.gloo-system.svc.cluster.local:6379
+          headers:
+            idTokenHeader: "jwt"
