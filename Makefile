@@ -23,6 +23,12 @@ resecure:
 		-f gloo/gloo-vs-api.yaml \
 		-f gloo/gloo-vs-client-fetch.yaml
 
+build-push-client:
+	docker build ./client/ -t nginx-fetch-gloo
+	docker tag nginx-fetch-gloo wmangerva/nginx-fetch-gloo
+	docker push wmangerva/nginx-fetch-gloo
+	kubectl delete pods -l app=client-fetch
+
 destroy:
 	@echo "Destroying Cluster '$(CLUSTER_NAME)'"
 	gcloud container clusters delete $(CLUSTER_NAME)

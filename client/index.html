@@ -12,29 +12,33 @@
 
     <script>
      function runFetch(requestConfig) {
-       fetch('https://api.glootest.com/get', requestConfig)
+       return fetch('https://api.glootest.com/get', requestConfig)
          .then(response => response.json())
          .then(data => {
-            console.log(obj);
-            document.getElementById('response-container').textContent = JSON.stringify(obj.headers, null, '  ');
+            console.log(data);
+            document.getElementById('response-container').textContent = JSON.stringify(data.headers, null, '  ');
+            return data;
          });
      }
 
      function runFetchCookie() {
-       runFetch({ credentials: 'include' });
+       return runFetch({ credentials: 'include' });
      }
 
      function runFetchBearer() {
-       runFetch({
-         credentials: 'omit',
-         headers: {
-           'Authorization': 'Bearer XXX'
-         }
-       });
+       return runFetchCookie()
+         .then(data => {
+           return runFetch({
+             credentials: 'omit',
+             headers: {
+               'Authorization': data.headers['Authorization'],
+             }
+           })
+         });
      }
 
      function runFetchApiKey() {
-       runFetch({
+       return runFetch({
          credentials: 'omit',
          headers: {
            'api-master-key': 'XXX'
@@ -43,7 +47,7 @@
      }
 
      function runFetchNoHeaders() {
-       runFetch({});
+       return runFetch({});
      }
     </script>
   </head>
@@ -58,9 +62,9 @@
 
     <h1>This is the Client</h1>
 
-    <button onclick="runFetchCookie()">Send Cookie Request</button>
+    <button onclick="runFetchCookie()">Send Session Cookie Request</button>
     <p></p>
-    <button onclick="runFetchBearer()">Send Bearer Request</button>
+    <button onclick="runFetchBearer()">Send id_token Cookie Request</button>
     <p></p>
     <button onclick="runFetchApiKey()">Send API Key Request</button>
     <p></p>

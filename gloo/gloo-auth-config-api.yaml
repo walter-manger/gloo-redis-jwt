@@ -5,7 +5,11 @@ metadata:
   namespace: gloo-system
 spec:
   configs:
-    - oauth2:
+    - name: JwtConfig
+      jwt: {}
+
+    - name: Auth0RedisConfig
+      oauth2:
         oidcAuthorizationCode:
           appUrl: https://api.glootest.com
           callbackPath: /callback
@@ -18,9 +22,12 @@ spec:
           scopes:
             - email
           session:
+            failOnFetchFailure: true
             redis:
               cookieName: auth0-session
               options:
                 host: redis.gloo-system.svc.cluster.local:6379
           headers:
             idTokenHeader: "jwt"
+
+  booleanExpr: (Auth0RedisConfig || JwtConfig)

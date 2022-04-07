@@ -11,13 +11,88 @@ spec:
   virtualHost:
     domains:
     - 'api.glootest.com'
+    options:
+      jwtStaged:
+        beforeExtAuth:
+          # important to allow missing jwts
+          allowMissingOrFailedJwt: true
+          providers:
+            auth0:
+              issuer: https://dev-98l3ihxy-y.us.auth0.com/
+              keepToken: false
+              tokenSource:
+                headers:
+                  - header: 'authorization'
+                    prefix: 'Bearer '
+              claimsToHeaders:
+                - claim: email
+                  header: x-solo-claim-email
+                - claim: email_verified
+                  header: x-solo-claim-email-verified
+              jwks:
+                remote:
+                  url: https://dev-98l3ihxy.us.auth0.com/.well-known/jwks.json
+                  upstreamRef:
+                    name: auth0-upstream
+                    namespace: gloo-system
+
+      stagedTransformations:
+        # before extauth
+        early:
+          requestTransforms:
+            # We extract a cookie header only if it's present
+            - matcher:
+                headers:
+                  - name: cookie
+                    value: '.*id_token=.*'
+                    regex: true
+                prefix: /
+              requestTransformation:
+                transformationTemplate:
+                  extractors:
+                    token:
+                      header: 'cookie'
+                      regex: '.*id_token=([^;]*).*'
+                      subgroup: 1
+                  headers:
+                    authorization:
+                      text: 'Bearer {{token}}'
+                    idTokenCookie:
+                      text: 'true'
+              clearRouteCache: true
+
+        # after extauth
+        regular:
+          requestTransforms:
+            - matcher:
+                headers:
+                  - name: jwt
+                  - name: cookie
+                    value: '.*id_token=.*'
+                    regex: true
+                    invertMatch: true
+                prefix: /
+              requestTransformation:
+                transformationTemplate:
+                  headers:
+                    authorization:
+                      text: 'Bearer {{ header("Jwt") }}'
+                    redisCookie:
+                      text: 'true'
+              clearRouteCache: true
+
+      headerManipulation:
+        requestHeadersToRemove:
+          - "cookie"
+          - "Jwt"
+
     routes:
     - matchers:
-      - headers:
-        - name: "cookie"
-          regex: true
-          value: ".*auth0-session=.*"
-        prefix: /
+      # - headers:
+      #   - name: "cookie"
+      #     regex: true
+      #     value: ".*auth0-session=.*"
+        - prefix: /
       routeAction:
         single:
           upstream:
@@ -28,42 +103,28 @@ spec:
           configRef:
             name: api-auth0-ac
             namespace: gloo-system
-        headerManipulation:
-          requestHeadersToRemove:
-          - "cookie"
-          - "Jwt"
-        stagedTransformations:
-            regular:
-              requestTransforms:
-                - requestTransformation:
-                    transformationTemplate:
-                      headers:
-                        authorization:
-                          text: "Bearer {{ header(\"Jwt\") }}"
-                  clearRouteCache: true
-      # jwt:
-      #   providers:
-      #     auth0:
-      #       issuer: https://dev-98l3ihxy.us.auth0.com/
-      #       tokenSource:
-      #         headers:
-      #         - header: Jwt
-      #       # claimsToHeaders:
-      #       # - claim: email
-      #       #   header: x-va-claim-email
-      #       jwks:
-      #         remote:
-      #           url: https://dev-98l3ihxy.us.auth0.com/.well-known/jwks.json
-      #           upstreamRef:
-      #             name: auth0-jwks-upstream
-      #             namespace: gloo-system
-    - matchers:
-      - headers:
-        - name: auth0-session
-          invertMatch: true
-        prefix: /
-      routeAction:
-        single:
-          upstream:
-            name: default-httpbin-api-8000
-            namespace: gloo-system
+        # headerManipulation:
+        #   requestHeadersToRemove:
+        #   - "cookie"
+        #   - "Jwt"
+        # stagedTransformations:
+        #     regular:
+        #       requestTransforms:
+        #         - requestTransformation:
+        #             transformationTemplate:
+        #               headers:
+        #                 authorization:
+        #                   text: "Bearer {{ header(\"Jwt\") }}"
+        #                 routetransorm:
+        #                   text: "Truly!"
+        #           clearRouteCache: true
+    # - matchers:
+    #   - headers:
+    #     - name: auth0-session
+    #       invertMatch: true
+    #     prefix: /
+    #   routeAction:
+    #     single:
+    #       upstream:
+    #         name: default-httpbin-api-8000
+    #         namespace: gloo-system
