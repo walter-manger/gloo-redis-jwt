@@ -9,6 +9,8 @@ which docker
 which gcloud
 which glooctl
 which kubectl
+which make
+which awk
 #+end_src
 
 ** Getting Started
@@ -17,8 +19,7 @@ which kubectl
 cp env_example.sh env.sh
 # Add secrets to env.sh
 source env.sh
-sh create_gke_cluster.sh
-sh create_gloo_entities.sh
+make cluster
 #+end_src
 
 Get the gateway IP
@@ -30,8 +31,12 @@ glooctl proxy address
 Place this IP in your =/etc/hosts=
 
 #+begin_src
-34.74.19.106 api.glootest.com
-34.74.19.106 client-fetch.glootest.com
+awk -F':' '{print $1 " api.glootest.com"}' <<< "$(glooctl proxy address)"
+awk -F':' '{print $1 " client-fetch.glootest.com"}' <<< "$(glooctl proxy address)"
+#+end_src
+
+#+begin_src shell
+make entities
 #+end_src
 
 ** Building the Client
@@ -50,5 +55,5 @@ k delete pod client-fetch-
 ** Tearing Down The Cluster
 
 #+begin_src shell
-gcloud container clusters delete $CLUSTER_NAME
+make destory
 #+end_src
