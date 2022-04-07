@@ -11,38 +11,39 @@
     <!-- Place favicon.ico in the root directory -->
 
     <script>
-
-     function show(obj) {
-        console.log(obj);
-        document.getElementById('response-container').textContent = JSON.stringify(obj.headers, null, '  ');
+     function runFetch(requestConfig) {
+       fetch('https://api.glootest.com/get', requestConfig)
+         .then(response => response.json())
+         .then(data => {
+            console.log(obj);
+            document.getElementById('response-container').textContent = JSON.stringify(obj.headers, null, '  ');
+         });
      }
 
-     function runFetch() {
-        fetch('https://api.glootest.com/get', { credentials: 'include' })
-          .then(response => response.json())
-          .then(data => show(data));
+     function runFetchCookie() {
+       runFetch({ credentials: 'include' });
      }
 
      function runFetchBearer() {
-       fetch('https://api.glootest.com/get', {
+       runFetch({
          credentials: 'omit',
          headers: {
            'Authorization': 'Bearer XXX'
          }
-       })
-          .then(response => response.json())
-          .then(data => show(data));
+       });
      }
 
-      function runFetchApiKey() {
-       fetch('https://api.glootest.com/get', {
+     function runFetchApiKey() {
+       runFetch({
          credentials: 'omit',
          headers: {
            'api-master-key': 'XXX'
          }
-       })
-          .then(response => response.json())
-          .then(data => show(data));
+       });
+     }
+
+     function runFetchNoHeaders() {
+       runFetch({});
      }
     </script>
   </head>
@@ -57,11 +58,13 @@
 
     <h1>This is the Client</h1>
 
-    <button onclick="runFetch()">Send Cookie Request</button>
+    <button onclick="runFetchCookie()">Send Cookie Request</button>
     <p></p>
     <button onclick="runFetchBearer()">Send Bearer Request</button>
     <p></p>
     <button onclick="runFetchApiKey()">Send API Key Request</button>
+    <p></p>
+    <button onclick="runFetchNoHeaders()">Send Unauthenticated Request</button>
     <p>
       <a href="/callback/">Callback</a>
     </p>
