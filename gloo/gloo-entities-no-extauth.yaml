@@ -1,0 +1,57 @@
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: client-fetch-auth0-vs
+  namespace: gloo-system
+spec:
+  sslConfig:
+    secretRef:
+      name: upstream-tls
+      namespace: gloo-system
+  virtualHost:
+    domains:
+    - 'client-fetch.glootest.com'
+    routes:
+    - matchers:
+      - prefix: /
+      routeAction:
+        single:
+          upstream:
+            name: default-client-fetch-8080
+            namespace: gloo-system
+---
+apiVersion: gateway.solo.io/v1
+kind: VirtualService
+metadata:
+  name: httpbin-auth0-vs
+  namespace: gloo-system
+spec:
+  sslConfig:
+    secretRef:
+      name: upstream-tls
+      namespace: gloo-system
+  virtualHost:
+    domains:
+    - 'api.glootest.com'
+    routes:
+    - matchers:
+      - headers:
+        - name: "cookie"
+          regex: true
+          value: ".*auth0-session=.*"
+        prefix: /
+      routeAction:
+        single:
+          upstream:
+            name: default-httpbin-api-8000
+            namespace: gloo-system
+    - matchers:
+      - headers:
+        - name: auth0-session
+          invertMatch: true
+        prefix: /
+      routeAction:
+        single:
+          upstream:
+            name: default-httpbin-api-8000
+            namespace: gloo-system

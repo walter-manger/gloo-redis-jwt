@@ -12,3 +12,7 @@ echo "Recreating gloo entities"
 kubectl apply \
     -f gloo/gloo-vs-api.yaml \
     -f gloo/gloo-vs-client-fetch.yaml
+
+glooctl check
+
+glooctl get vs

@@ -8,8 +8,9 @@ spec:
     - oauth2:
         oidcAuthorizationCode:
           appUrl: https://client-fetch.glootest.com
-          callbackPath: /callback
-          logoutPath: /logout
+          callbackPath: /index.html
+          logoutPath: /logout/
+          # afterLogoutUrl: https://client-fetch.glootest.com/loggedout.html
           clientId: nQXzyCkaTJR2KIhGpHa9yhsZkxKHdZ87
           clientSecretRef:
             name: auth0-client-secret
@@ -42,6 +43,20 @@ spec:
     domains:
     - 'client-fetch.glootest.com'
     routes:
+    - matchers:
+      - prefix: /callback
+      routeAction:
+        single:
+          upstream:
+            name: default-client-fetch-8080
+            namespace: gloo-system
+    - matchers:
+      - prefix: /logout
+      routeAction:
+        single:
+          upstream:
+            name: default-client-fetch-8080
+            namespace: gloo-system
     - matchers:
       - prefix: /
       routeAction:

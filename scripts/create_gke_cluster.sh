@@ -29,3 +29,18 @@ kubectl create clusterrolebinding cluster-admin-binding \
 glooctl install gateway enterprise --with-gloo-fed false --license-key "$GLOO_KEY"
 
 echo "Check the cluster and see if everything is running properly"
+
+echo ""
+
+echo "Removing Unnecessary Deployments"
+kubectl delete deployments.apps -n gloo-system gloo-fed
+kubectl delete deployments.apps -n gloo-system gloo-fed-console
+kubectl delete deployments.apps -n gloo-system glooe-grafana
+kubectl delete deployments.apps -n gloo-system glooe-prometheus-kube-state-metrics
+kubectl delete deployments.apps -n gloo-system glooe-prometheus-server
+
+echo ""
+
+echo "Add this to your /etc/hosts (without the port)"
+echo "$(glooctl proxy address) client-fetch.glootest.com"
+echo "$(glooctl proxy address) api.glootest.com"
