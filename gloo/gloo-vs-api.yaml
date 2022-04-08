@@ -88,10 +88,6 @@ spec:
 
     routes:
     - matchers:
-      # - headers:
-      #   - name: "cookie"
-      #     regex: true
-      #     value: ".*auth0-session=.*"
         - prefix: /
       routeAction:
         single:
@@ -103,28 +99,3 @@ spec:
           configRef:
             name: api-auth0-ac
             namespace: gloo-system
-        # headerManipulation:
-        #   requestHeadersToRemove:
-        #   - "cookie"
-        #   - "Jwt"
-        # stagedTransformations:
-        #     regular:
-        #       requestTransforms:
-        #         - requestTransformation:
-        #             transformationTemplate:
-        #               headers:
-        #                 authorization:
-        #                   text: "Bearer {{ header(\"Jwt\") }}"
-        #                 routetransorm:
-        #                   text: "Truly!"
-        #           clearRouteCache: true
-    # - matchers:
-    #   - headers:
-    #     - name: auth0-session
-    #       invertMatch: true
-    #     prefix: /
-    #   routeAction:
-    #     single:
-    #       upstream:
-    #         name: default-httpbin-api-8000
-    #         namespace: gloo-system
