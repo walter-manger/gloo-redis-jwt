@@ -42,14 +42,7 @@ make entities
 ** Building the Client
 
 #+begin_src shell
-cd ./client
-docker build . -t nginx-fetch-gloo && docker tag nginx-fetch-gloo wmangerva/nginx-fetch-gloo && docker push wmangerva/nginx-fetch-gloo
-#+end_src
-
-Trigger a fetch of the new container
-
-#+begin_src shell
-k delete pod client-fetch-
+make build-push-client
 #+end_src
 
 ** Tearing Down The Cluster
